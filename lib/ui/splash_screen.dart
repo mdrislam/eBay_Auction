@@ -23,13 +23,17 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     // TODO: implement initState
+
     Timer(Duration(seconds: 3), () {
-      if (_auth.currentUser!.uid.isNotEmpty) {
+      if (_auth.currentUser != null)
+      {
+        print("Init is call true");
         Navigator.push(
             context, CupertinoPageRoute(builder: (_) => BottomNavController()));
       } else {
         Navigator.push(
             context, CupertinoPageRoute(builder: (_) => SignUpScreen()));
+        print("Init is call");
       }
     });
     super.initState();

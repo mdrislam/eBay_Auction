@@ -69,23 +69,7 @@ class _AuctionFormState extends State<AuctionForm> {
                                   ))),
                     ),
                     Container(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          FlatButton(
-                            onPressed: () {
-                              _getStoragePermission();
-                              _showPicker(context);
-                            },
-                            child: Text(
-                              "Select",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            color: AppColorsConst.deepOrrange,
-                          )
-                        ],
-                      ),
+
                     ),
                     SizedBox(
                       height: 20.h,
@@ -243,7 +227,7 @@ class _AuctionFormState extends State<AuctionForm> {
     if (picked != null) {
       setState(() {
         _auctionDateController.text =
-            "${picked.day}/ ${picked.month}/ ${picked.year} ";
+            "${picked.day}-${picked.month}-${picked.year} ";
       });
     }
   }
@@ -363,12 +347,13 @@ class _AuctionFormState extends State<AuctionForm> {
     var _currentUser = _auth.currentUser;
     CollectionReference _collectionRef =
         FirebaseFirestore.instance.collection("Product_data");
+    String tblId = _collectionRef.doc().id;
 
     await uploadImage(_imageFile!).then((value) => {
           _collectionRef
-              .doc(_collectionRef.doc().id)
+              .doc(tblId)
               .set({
-                "tblId": _collectionRef.doc().id,
+                "tblId": tblId,
                 "uId": _currentUser!.uid,
                 "name": name,
                 "description": description,

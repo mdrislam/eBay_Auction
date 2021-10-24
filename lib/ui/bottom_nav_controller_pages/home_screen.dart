@@ -1,5 +1,6 @@
 import 'package:ebay_auction/const/AppColorsConst.dart';
 import 'package:ebay_auction/ui/my_product_items.dart';
+import 'package:ebay_auction/ui/product_details.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 
 import '../auction_form.dart';
 
@@ -144,75 +146,107 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Flexible(
-                child: ListView.builder(
-                    itemCount: _products.length,
-                    physics: NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) => Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Card(
-                            clipBehavior: Clip.antiAlias,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24)),
-                            child: Stack(
-                              children: [
-                                Column(
+              child: ListView.builder(
+                itemCount: _products.length,
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemBuilder: (context, index) => Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Card(
+                    clipBehavior: Clip.antiAlias,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24)),
+                    child: Stack(
+                      children: [
+                        Column(
+                          children: [
+                            Ink.image(
+                              image: NetworkImage(
+                                _products[index]["photo"],
+                              ),
+                              height: 250,
+                              fit: BoxFit.cover,
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      CupertinoPageRoute(
+                                          builder: (_) => ProductDetails(
+                                              tbleId: _products[index]
+                                                  ["tblId"])));
+                                },
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                height: 100,
+                                alignment: Alignment.centerLeft,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Ink.image(
-                                      image: NetworkImage(
-                                        _products[index]["photo"],
-                                      ),
-                                      height: 250,
-                                      fit: BoxFit.cover,
-                                      child: InkWell(
-                                        onTap: () {},
-                                      ),
+                                    Text(
+                                      "Name: " + "${_products[index]["name"]}",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                          fontSize: 24.sp),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Container(
-                                        height: 100,
-                                        alignment: Alignment.centerLeft,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Name: " +
-                                                  "${_products[index]["name"]}",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black,
-                                                  fontSize: 24.sp),
-                                            ),
-                                            Text(
-                                              "MinBid Price: " +
-                                                  "${_products[index]["minBidPrice"].toString()}",
-                                              style: TextStyle(
-                                                  fontSize: 18.sp,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            Text(
-                                              "End Date: " +
-                                                  "${_products[index]["date"].toString() + "- ${_products[index]["time"].toString()}"}",
-                                              style: TextStyle(
-                                                  fontSize: 18.sp,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.redAccent),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    )
+                                    Text(
+                                      "MinBid Price: " +
+                                          "${_products[index]["minBidPrice"].toString()}",
+                                      style: TextStyle(
+                                          fontSize: 18.sp,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Text(
+                                      "End Date: " +
+                                          getEndDate(_products[index]["date"] +
+                                              _products[index]["time"]),
+                                      style: TextStyle(
+                                          fontSize: 18.sp,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.redAccent),
+                                    ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          ),
-                        )))
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            )
           ],
         )),
       ),
     );
+  }
+
+  String getEndDate(String date) {
+    var returnString = '';
+    final DateTime now = DateTime.now();
+    final DateFormat formatter = DateFormat('yyyy-MM-dd kk:mm a');
+    final today = formatter.format(now);
+    final fromDate = formatter.parse(date);
+    final toDate = formatter.parse(today);
+
+    var days = toDate.difference(fromDate).inDays;
+    var hour = toDate.difference(fromDate).inHours % 24;
+    var minute = toDate.difference(fromDate).inMinutes % 60;
+    if (minute > 0) {
+      if (days < 1) {
+        returnString = "Days: ${0} Hour: ${hour} Minute: ${minute}";
+      } else {
+        returnString = "Days: ${days} Hour: ${hour} Minute: ${minute}";
+      }
+    } else {
+      returnString = "Complete";
+    }
+
+    return returnString;
   }
 }
